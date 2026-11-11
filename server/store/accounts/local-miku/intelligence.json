@@ -1,0 +1,15 @@
+{
+  "profile": {
+    "name": "사용자",
+    "grade": "고등학생",
+    "style": "단짝 친구이자 멘토"
+  },
+  "cross_session_facts": [],
+  "recent_topics": [],
+  "mood_history": [],
+  "study_records": {
+    "quiz_attempts": 0,
+    "quiz_correct": 0,
+    "focus_minutes": 0
+  }
+}

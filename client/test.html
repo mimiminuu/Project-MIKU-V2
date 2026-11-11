@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🔬 AI 컴페니언 - 기능 테스트</title>
+  <script src="/vendor/pixi.min.js"></script>
+  <script src="/vendor/live2dcubismcore.min.js"></script>
+  <script src="/vendor/cubism4.min.js"></script>
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/test.css" />
+</head>
+<body>
+  <div class="test-top">
+    <h1>🔬 기능별 독립 테스트</h1>
+    <div class="test-top-right">
+      <span id="ws-state" class="conn-state">연결 안 됨</span>
+      <button onclick="location.href='/index.html'">← 메인으로</button>
+    </div>
+  </div>
+
+  <div class="test-layout">
+    <div class="test-canvas-wrap">
+      <canvas id="test-canvas"></canvas>
+      <div class="model-label" id="model-label">아바타 미로드</div>
+    </div>
+
+    <div class="test-main">
+      <!-- WS 연결 -->
+      <section class="card">
+        <h2>① WebSocket</h2>
+        <div class="row">
+          <button id="btn-ws-connect">연결</button>
+          <button id="btn-ws-ping">ping</button>
+          <button id="btn-ws-close">끊기</button>
+        </div>
+        <div class="res" id="ws-conn-info">아직 연결 안 됨</div>
+      </section>
+
+      <!-- 아바타 -->
+      <section class="card">
+        <h2>② 아바타 로드 (기본 Haru → 폴백 Senko)</h2>
+        <div class="row"><button id="btn-avatar-load">모델 로드</button></div>
+        <div class="res" id="avatar-info">클릭하여 로드 테스트</div>
+      </section>
+
+      <!-- 모델 전환 -->
+      <section class="card">
+        <h2>⑭ 모델 전환 (switchModel)</h2>
+        <div class="row">
+          <select id="t-model-select"></select>
+          <button id="btn-model-switch">전환</button>
+        </div>
+        <div class="row"><button id="btn-model-list">목록 조회 (/api/avatar-models)</button></div>
+        <div class="res" id="model-switch-info">모델을 선택하고 전환 테스트</div>
+      </section>
+
+      <!-- 위치/크기 -->
+      <section class="card">
+        <h2>⑮ 위치 / 크기 (드래그·슬라이더·휠)</h2>
+        <div class="row">
+          <button id="btn-pos-up">↑</button>
+          <button id="btn-pos-left">←</button>
+          <button id="btn-pos-right">→</button>
+          <button id="btn-pos-down">↓</button>
+          <button id="btn-pos-reset">🎯 초기화</button>
+        </div>
+        <div class="row">
+          <input id="t-zoom" type="range" min="30" max="250" step="1" value="100" />
+          <span id="t-zoom-label">100%</span>
+        </div>
+        <div class="row">
+          <button data-zoom="50">50%</button>
+          <button data-zoom="100">100%</button>
+          <button data-zoom="200">200%</button>
+          <button id="btn-model-info">상태 조회</button>
+        </div>
+        <div class="res" id="pos-info">캔버스에서 직접 드래그/휠도 테스트 가능</div>
+      </section>
+
+      <!-- 인터랙션 -->
+      <section class="card">
+        <h2>⑯ 인터랙션 (쓰다듬기·홀딩·축하·하트)</h2>
+        <div class="row">
+          <button id="btn-pet">쓰다듬기 ×3</button>
+          <button id="btn-hold">홀딩</button>
+        </div>
+        <div class="row">
+          <button id="btn-celebrate">축하</button>
+        </div>
+        <div class="res" id="interact-info">중앙점 기준으로 반응 테스트. 캔버스 직접 조작도 가능.</div>
+      </section>
+
+      <!-- 아바타 API -->
+      <section class="card wide">
+        <h2>⑰ 아바타 API (세션별 저장 검증)</h2>
+        <div class="row">
+          <button id="btn-api-models">① 목록 조회</button>
+          <button id="btn-api-get">② 내 세션 조회</button>
+        </div>
+        <div class="row">
+          <button id="btn-api-set-yinlang">③ yinlang 저장+검증</button>
+          <button id="btn-api-set-bad">④ 무효ID → 기본값 확인</button>
+        </div>
+        <div class="row">
+          <button id="btn-api-isolation">⑤ 전역 모델 통합 확인 + 원복</button>
+        </div>
+        <div class="res" id="api-info">각 단계별 PASS/FAIL 표시</div>
+      </section>
+
+      <!-- 모션/표정 랩 -->
+      <section class="card wide">
+        <h2>⑱ 모션 / 표정 랩 (직접 재생)</h2>
+        <div class="row">
+          <button id="btn-motion-groups">모션 그룹 조회</button>
+        </div>
+        <div class="row">
+          <input id="motion-group" type="text" value="TapBody" />
+          <input id="motion-index" type="text" value="0" />
+          <button id="btn-motion-play">모션 재생</button>
+        </div>
+        <div class="row">
+          <input id="expr-id" type="text" value="e02" />
+          <button id="btn-expr-apply">표정 적용</button>
+          <button data-expr="e05">e05 🙂</button>
+          <button data-expr="e02">e02 💗</button>
+          <button data-expr="e07">e07 🤩</button>
+          <button data-expr="e08">e08 😢</button>
+        </div>
+        <div class="res" id="motion-info">그룹명+인덱스로 모션, ID/이름으로 표정 테스트 (은랑: e01~e14)</div>
+      </section>
+
+      <!-- 상황별 모션 -->
+      <section class="card wide">
+        <h2>⑲ 상황별 모션 (총 26종 - 파라미터 기반 즉석 애니메이션)</h2>
+        <div style="margin-bottom:6px;font-size:12px;color:var(--accent-2);font-weight:bold;">📖 학습 & 대화 태도 (7종)</div>
+        <div class="row">
+          <button id="btn-s-nod">끄덕끄덕 (맞장구)</button>
+          <button id="btn-s-explain">설명 포즈</button>
+          <button id="btn-s-think">생각/고민</button>
+          <button id="btn-s-focus">🎯 열공/집중</button>
+          <button id="btn-s-proud">으쓱/자신감</button>
+          <button id="btn-s-curious">❓ 갸우뚱/호기심</button>
+          <button id="btn-s-whisper">🤫 속닥속닥/비밀</button>
+        </div>
+        <div style="margin:10px 0 6px;font-size:12px;color:var(--accent-2);font-weight:bold;">💖 감정 & 기분 (8종)</div>
+        <div class="row">
+          <button id="btn-s-joy">기쁨 (바운스)</button>
+          <button id="btn-s-surprise">놀람 (눈 커짐)</button>
+          <button id="btn-s-sad">슬픔 (고개 숙임)</button>
+          <button id="btn-s-angry">화남 (떨림)</button>
+          <button id="btn-s-shy">😳 부끄/수줍</button>
+          <button id="btn-s-panic">😱 당황/멘붕</button>
+          <button id="btn-s-pout">😤 삐짐/뾰로통</button>
+          <button id="btn-s-sparkle">✨ 초롱초롱/기대</button>
+        </div>
+        <div style="margin:10px 0 6px;font-size:12px;color:var(--accent-2);font-weight:bold;">⚡ 상태 & 반응 (6종)</div>
+        <div class="row">
+          <button id="btn-s-fighting">🔥 응원/파이팅</button>
+          <button id="btn-s-sleepy">졸음 (눈 감김)</button>
+          <button id="btn-s-wakeup">깨어남 (기지개)</button>
+          <button id="btn-s-dozeoff">😴 꾸벅꾸벅</button>
+          <button id="btn-s-relieved">😮‍💨 안도/다행</button>
+          <button id="btn-s-spaceout">멍때리기/뇌정지</button>
+        </div>
+        <div style="margin:10px 0 6px;font-size:12px;color:var(--accent-2);font-weight:bold;">👋 인사 & 제스처 (5종)</div>
+        <div class="row">
+          <button id="btn-s-greet">인사 (고개 숙임)</button>
+          <button id="btn-s-shake">도리도리 (거절)</button>
+          <button id="btn-s-wave">손 흔들기</button>
+          <button id="btn-s-clap">박수</button>
+          <button id="btn-s-dance">춤 💃</button>
+        </div>
+        <div class="res" id="situation-info">파라미터 기반 즉석 애니메이션. 커서 트래킹/호흡/눈깜빡임과 자연스럽게 블렌딩됩니다.</div>
+      </section>
+
+      <!-- 감정 -->
+      <section class="card wide">
+        <h2>③ 감정 / 상황 태그 (아바타 표정/모션 연동)</h2>
+        <div style="margin-bottom:6px;font-size:12px;color:var(--accent-2);font-weight:bold;">😊 표정 감정 (19종)</div>
+        <div class="row" id="emotion-btns"></div>
+        <div style="margin:10px 0 6px;font-size:12px;color:var(--accent-2);font-weight:bold;">🎬 행동 태그 (12종 - 서버로 보내면 상황 모션이 재생된다)</div>
+        <div class="row" id="action-btns"></div>
+        <div class="row" style="margin-top:10px;">
+          <input id="tag-input" type="text" placeholder="태그 직접 입력 (예: sparkle)" />
+          <button id="btn-tag-send">서버 경유 전송</button>
+          <button id="btn-tag-local">로컬 직접 적용</button>
+        </div>
+        <div class="res" id="emotion-info">WS가 연결되어 있으면 서버 경유(test_emotion), 아니면 아바타에 바로 적용합니다.</div>
+        <div class="row" style="margin-top:10px;">
+          <button id="btn-state-toggle">🔍 동작 상태 자동 갱신</button>
+          <button id="btn-state-refresh">새로고침</button>
+        </div>
+        <pre class="res" id="action-state" style="white-space:pre-wrap;font-family:ui-monospace,Consolas,monospace;font-size:11px;line-height:1.5;">자동 갱신은 꺼져 있습니다.</pre>
+      </section>
+
+      <!-- 탭 -->
+      <section class="card">
+        <h2>④ 건드리기 반응 (모션)</h2>
+        <div class="row"><button id="btn-tap">👆 탭</button></div>
+        <div class="res">현재 모델에 등록된 탭 모션을 재생하고, 고개/눈 파라미터로 짧은 반응을 보탭니다. (세코·은랑은 탭 모션이 긴 특수 동작이라 파라미터 반응만)</div>
+      </section>
+
+      <!-- 립싱크 -->
+      <section class="card">
+        <h2>⑤ 립싱크 & 발화 중 입모양</h2>
+        <div class="row">
+          <button id="btn-beep">🎵 비프음 재생 (2초)</button>
+          <button id="btn-speak-toggle">🗣️ 발화(말하기) 토글</button>
+        </div>
+        <div class="res" id="lipsync-info">비프음 재생 또는 발화 토글 켜짐 상태에서 ⑲ 모션 버튼을 눌러도 입이 멈추지 않고 계속 움직입니다.</div>
+      </section>
+
+      <!-- 스트리밍 텍스트 -->
+      <section class="card">
+        <h2>⑥ 스트리밍 텍스트 (LLM 없이)</h2>
+        <div class="row">
+          <button id="btn-stream">토큰 스트림 시뮬레이션</button>
+        </div>
+        <div class="out" id="stream-out"></div>
+      </section>
+
+      <!-- TTS -->
+      <section class="card">
+        <h2>⑦ TTS 음성 재생</h2>
+        <div class="row">
+          <input id="tts-text" type="text" value="이것은 TTS 테스트 문장입니다. 잘 들리나요?" />
+          <button id="btn-tts">재생</button>
+        </div>
+        <div class="res" id="tts-info">오디오 수신 바이트: 0</div>
+      </section>
+
+      <!-- 마이크 -->
+      <section class="card">
+        <h2>⑧ 마이크 / 음성 인식 (dev=Web Speech)</h2>
+        <div class="row"><button id="btn-mic">🎤 켜기</button></div>
+        <div class="out" id="mic-out">음성 인식 결과가 여기에 표시됩니다.</div>
+      </section>
+
+      <!-- 목표 -->
+      <section class="card">
+        <h2>⑨ 오늘의 목표 (장기 기억)</h2>
+        <div class="row">
+          <input id="goal-text" type="text" value="테스트 공부 목표" />
+          <button id="btn-goal">설정</button>
+        </div>
+        <div class="res" id="goal-res">로드 전</div>
+      </section>
+
+      <!-- 기억 검색 -->
+      <section class="card">
+        <h2>⑩ 장기 기억 검색 (망각 가중치)</h2>
+        <div class="row">
+          <input id="recall-text" type="text" value="로그함수" />
+          <button id="btn-recall">기억 검색</button>
+        </div>
+        <div class="res" id="recall-res"></div>
+      </section>
+
+      <!-- RAG -->
+      <section class="card wide">
+        <h2>⑪ RAG - 자료 업로드 & 검색</h2>
+        <div class="row">
+          <input id="rag-file" type="file" accept=".pdf,.txt,.md" />
+          <button id="btn-upload">업로드</button>
+        </div>
+        <div class="row">
+          <input id="rag-query" type="text" value="이 자료에서 핵심 개념 검색" />
+          <button id="btn-rag">검색</button>
+        </div>
+        <div class="res" id="rag-res"></div>
+      </section>
+
+      <!-- 전체 파이프라인 -->
+      <section class="card wide">
+        <h2>⑫ 전체 파이프라인 (LLM mock 통합)</h2>
+        <div class="row">
+          <input id="pipe-text" type="text" value="안녕! 미분 공식 문제 풀어줘" />
+          <button id="btn-pipe">전송</button>
+        </div>
+        <div class="out" id="pipe-out"></div>
+      </section>
+
+      <!-- 이벤트 카운터 -->
+      <section class="card wide">
+        <h2>⑬ WS 이벤트 카운터</h2>
+        <div class="res" id="counter"></div>
+      </section>
+    </div>
+
+    <div class="test-log-wrap">
+      <h2>WS 실시간 로그</h2>
+      <div id="ws-log" class="ws-log"></div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/testApp.js"></script>
+</body>
+</html>

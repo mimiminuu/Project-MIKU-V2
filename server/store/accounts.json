@@ -1,0 +1,37 @@
+[
+  {
+    "id": "admin",
+    "password": "1212",
+    "name": "관리자",
+    "role": "admin",
+    "createdAt": "2026-10-29T01:07:03.189Z"
+  },
+  {
+    "id": "guest",
+    "password": "1212",
+    "name": "",
+    "role": "demo",
+    "createdAt": "2026-10-29T13:47:53.092Z"
+  },
+  {
+    "id": "user1",
+    "password": "0845",
+    "name": "",
+    "role": "demo",
+    "createdAt": "2026-10-29T23:45:04.374Z"
+  },
+  {
+    "id": "user2",
+    "password": "0845",
+    "name": "",
+    "role": "demo",
+    "createdAt": "2026-10-29T23:45:11.531Z"
+  },
+  {
+    "id": "user3",
+    "password": "0845",
+    "name": "",
+    "role": "demo",
+    "createdAt": "2026-10-29T23:45:22.915Z"
+  }
+]
