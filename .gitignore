@@ -1,0 +1,17 @@
+node_modules/
+.env
+server/store/memory.db
+server/store/memory_*.db
+server/store/materials/
+server/store/chroma/
+client/assets/models/live2d/
+client/assets/generated/
+client/vendor/
+*.log
+server/store/logs/
+server/store/demo_logs/
+server/store/conversations/
+server/store/accounts/
+logs/
+tools/
+_rmtest/

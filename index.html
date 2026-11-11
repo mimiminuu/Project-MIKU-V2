@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project - MIKU</title>
+  <script src="/vendor/pixi.min.js"></script>
+  <script src="/vendor/live2dcubismcore.min.js"></script>
+  <script src="/vendor/cubism4.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css" crossorigin="anonymous" />
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="/css/style.css?v=20261030_preview_logo_match" />
+</head>
+<body>
+  <div id="app">
+    <main class="layout" id="main-layout">
+      <!-- 좌측 사이드바 (ChatGPT 스타일 세션/목표/설정) -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+          <div class="sidebar-brand">
+            <span class="brand-title">Project - MIKU</span>
+            <span class="brand-preview-tag" id="brand-preview-tag" style="display: none;">for Preview</span>
+          </div>
+          <button id="btn-sidebar-collapse" class="icon-btn ghost" type="button" title="사이드바 접기">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+          </button>
+        </div>
+
+        <div class="sidebar-actions">
+          <button id="btn-next-demo-user" class="demo-start-btn" type="button" style="display: none;" title="새 참가자 시작하기 (이전 세션을 초기화하고 새 대화창에서 이름을 입력받습니다)">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8l3 3-3 3"/><path d="M22 11h-7"/></svg>
+            <span>새 참가자 시작하기</span>
+          </button>
+          <button id="btn-new-session" class="sidebar-item primary-action" type="button" title="새 채팅 시작">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span>새 채팅</span>
+          </button>
+          <button id="btn-open-tools-guide" class="sidebar-item" type="button" title="사용 방법 및 LLM 도구 안내 (GPT 스타일)">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            <span>도구 & 사용 가이드</span>
+            <span class="sidebar-item-badge">Guide</span>
+          </button>
+        </div>
+
+        <div class="sidebar-section-label">대화 세션</div>
+        <div id="session-list" class="session-list"></div>
+
+        <div class="sidebar-footer">
+          <button id="btn-open-profile" class="sidebar-item profile-sidebar-btn" type="button" title="프로필 설정">
+            <div class="profile-avatar-thumb" id="sidebar-profile-avatar"></div>
+            <div class="sidebar-item-text">
+              <span id="sidebar-profile-name">User</span>
+            </div>
+          </button>
+          <button id="btn-open-settings" class="sidebar-item" type="button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+            <span>설정</span>
+          </button>
+          <a id="btn-go-admin" class="sidebar-item" href="/admin" title="어드민 콘솔 (계정 관리)" style="display: none; text-decoration: none; color: inherit;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.93V17a1 1 0 0 1-2 0v-.07A7 7 0 0 1 5.07 11H5a1 1 0 0 1 0-2h.07A7 7 0 0 1 11 5.07V5a1 1 0 0 1 2 0v.07A7 7 0 0 1 18.93 11H19a1 1 0 0 1 0 2h-.07A7 7 0 0 1 13 16.93z"/></svg>
+            <span>계정 관리</span>
+          </a>
+          <button id="btn-logout" class="sidebar-item" type="button" title="로그아웃">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            <span>로그아웃</span>
+          </button>
+        </div>
+      </aside>
+
+      <!-- 사이드바 크기 조절 바 -->
+      <div class="resizer resizer-sidebar" id="resizer-sidebar" title="드래그하여 사이드바 너비 조절"></div>
+
+      <!-- 중앙: 아바타 컬럼 (레퍼런스 카드형 구조 + 상단 배지 + 시점 토글) -->
+      <section class="avatar-column" id="avatar-column">
+        <div class="avatar-card" id="avatar-card">
+          <div class="avatar-card-header">
+            <div class="avatar-badge avatar-name-badge" id="avatar-name-badge">
+              <span id="avatar-name-text">하루</span>
+            </div>
+            <div class="avatar-card-header-right">
+              
+              
+              <button type="button" id="btn-view-toggle" class="avatar-badge-btn" title="시점 전환 (상반신 / 전신)">
+                <span id="view-toggle-icon">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+                </span>
+                <span id="view-toggle-text">상반신</span>
+              </button>
+            </div>
+          </div>
+          <div class="avatar-canvas-container" id="avatar-canvas-container">
+            <canvas id="avatar-canvas"></canvas>
+          </div>
+          <div id="stage-overlay">
+            <select id="avatar-select" title="아바타 모델 선택"></select>
+            <button id="btn-recenter" class="icon-btn" type="button" title="위치/크기 초기화">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>
+            </button>
+            <span class="zoom-box" title="아바타 크기">
+              <input id="avatar-zoom" type="range" min="30" max="550" step="1" value="100" />
+              <span id="avatar-zoom-label">100%</span>
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 아바타 / 프롬프트창 크기 조절 바 -->
+      <div class="resizer resizer-avatar" id="resizer-avatar" title="드래그하여 아바타 및 프롬프트 창 너비 조절"></div>
+
+      <!-- 우측: 대화 및 도구 결과 에어리어 -->
+      <section class="board-area" id="board-area">
+        <div class="board-body" id="board-body">
+          <!-- 좌측: 대화 전용 컬럼 (상단 테마바 + 메시지 로그 + 하단 프롬프트 바) -->
+          <div class="chat-pane" id="chat-pane">
+            <!-- 대화 메시지 로그 -->
+            <div id="chat-log" class="chat-log"></div>
+            <div id="miku-welcome" style="margin:8px 16px;padding:13px;border:1px solid #8b9db577;border-radius:12px;font-size:13px;line-height:1.7">
+              <strong>MIKU 수학 학습 안내</strong><div>워크북 80쪽 8번 · 85쪽 9번 또는 다른 수학 문제를 질문해 봐!</div>
+              <div>① 문제를 입력하거나 사진 첨부 ② 네 풀이를 먼저 공유 ③ 막힌 곳의 힌트나 오류 점검 요청</div>
+              <div>MIKU는 정답 대신 한 단계씩 힌트를 주며, 필요한 경우에만 그래프를 보여줘.</div>
+            </div>
+
+            <!-- 하단 입력 영역 (컴포저 캡슐 + 하단 고지문) -->
+            <div class="input-area-footer" id="input-area-footer">
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:5px 12px;font-size:12px">
+                <label><input type="checkbox" id="miku-voice-toggle"> 답변 읽기</label>
+                <label>음량 <input type="range" id="tts-volume-slider" min="0" max="100" value="70" style="width:95px;vertical-align:middle"></label>
+                <label><input type="checkbox" id="miku-avatar-toggle" checked> 캐릭터 표시</label>
+                <button type="button" id="miku-stop-voice" style="font-size:12px">음성 정지</button>
+              </div><div class="input-bar" id="input-bar">
+                <div id="prompt-attachments" class="prompt-attachments" hidden style="display: none;"></div>
+                <form id="chat-form" class="chat-form" autocomplete="off">
+                  <div class="input-quick-actions">
+                    <!-- ChatGPT 스타일 모델 선택기 -->
+                    <div class="model-selector-wrapper" id="model-selector-wrapper">
+                      <button id="btn-model-select" class="model-pill-btn" type="button" aria-haspopup="true" aria-expanded="false" title="모델 변경">
+                        <span id="current-model-label">Nemotron 3.5 Super</span>
+                        <svg class="chevron-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                      </button>
+                      <div id="model-dropdown-menu" class="model-dropdown-menu" hidden>
+                        <div class="model-dropdown-header">AI 모델</div>
+                        <button type="button" class="model-dropdown-item active" data-model="nemotron">
+                          <div class="model-item-text">
+                            <div class="model-item-title">
+                              <span>Nemotron 3.5 Super</span>
+                            </div>
+                          </div>
+                          <svg class="model-check-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+                        </button>
+                        <div class="model-dropdown-divider"></div>
+                        <div class="model-dropdown-think-row" id="row-dropdown-think">
+                          <div class="model-dropdown-think-label">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                            <span>추론 (Thinking) 과정</span>
+                          </div>
+                          <label class="toggle-switch-sm" title="추론 과정 켜기/끄기">
+                            <input type="checkbox" id="toggle-dropdown-think" checked />
+                            <span class="toggle-slider-sm"></span>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button id="btn-open-materials-2" class="icon-btn ghost" type="button" title="파일 첨부">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+                    </button>
+                    <input type="file" id="prompt-file-input" accept=".pdf,.txt,.md,.json,.csv,.py,.js,.ts,.html,.css,.cpp,.java,.png,.jpg,.jpeg,.webp,.gif,.bmp,image/*" multiple hidden />
+
+                    <button id="btn-goal-edit" class="icon-btn ghost" type="button" title="오늘의 목표 설정">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/></svg>
+                    </button>
+                  </div>
+                  <textarea id="chat-input" rows="1" placeholder="무엇이든 물어보세요..."></textarea>
+                  <button id="btn-mic" class="icon-btn ghost" type="button" title="음성 입력">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+                  </button>
+                  <button id="btn-send" class="send-btn" type="submit" title="전송" aria-label="전송">
+                    <svg class="icon-send" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+                    <svg class="icon-stop" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="4" width="16" height="16" rx="3"/></svg>
+                  </button>
+                </form>
+              </div>
+              <div class="disclaimer-text">AI는 실수할 수 있어요. 중요한 내용은 선생님이나 교과서로 꼭 확인하세요</div>
+            </div>
+          </div>
+
+          <!-- 칠판/오른쪽 사이드바 좌우 크기 조절 바 (Resizer) -->
+          <div class="resizer resizer-explanation" id="resizer-explanation" title="드래그하여 오른쪽 사이드바 너비 조절" hidden></div>
+
+          <!-- 우측: 칠판 / 도구 결과 사이드바 -->
+          <div id="explanation-panel" class="explanation-panel" hidden>
+            <div class="explanation-toolbar">
+              <div class="explanation-toolbar-info">
+                <span id="explanation-tool-badge" class="explanation-tool-badge" hidden></span>
+                <span id="explanation-title" class="explanation-title">개념 설명</span>
+              </div>
+              <button id="btn-close-explanation" class="icon-btn ghost" type="button" title="닫기">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+              </button>
+            </div>
+            <div id="explanation-content" class="explanation-content"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- 사이드바 접혔을 때 여는 플로팅 버튼 -->
+    <button id="btn-sidebar-expand" class="icon-btn sidebar-expand-btn" type="button" title="사이드바 열기" hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>
+    </button>
+
+    <!-- 도구 및 사용 방법 가이드 모달 (GPT 스타일) -->
+    <div class="modal-overlay" id="tools-guide-modal-overlay">
+      <div class="modal tools-guide-modal" id="tools-guide-modal">
+        <div class="modal-header tools-guide-modal-header">
+          <div class="tools-guide-header-title">
+            <div class="tools-guide-badge-icon">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>
+            </div>
+            <div>
+              <h2>MIKU 기능 및 도구 가이드</h2>
+              <p class="modal-subtitle">MIKU의 11가지 LLM 도구와 효율적인 학습 방법을 확인하고 바로 사용해보세요.</p>
+            </div>
+          </div>
+          <button class="modal-close icon-btn ghost" id="btn-close-tools-guide" type="button" title="닫기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+
+        <!-- 탭 네비게이션 -->
+        <div class="tools-guide-tabs">
+          <button class="tools-guide-tab active" data-tab="tools" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <span>사용 가능한 LLM 도구 (11종)</span>
+          </button>
+          <button class="tools-guide-tab" data-tab="guide" type="button">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+            <span>MIKU 사용 방법</span>
+          </button>
+        </div>
+
+        <div class="modal-body tools-guide-modal-body">
+          <!-- 탭 1: LLM 도구 목록 -->
+          <div class="tools-guide-tab-pane active" id="pane-tools">
+            <div class="tools-filter-bar">
+              <div class="filter-pill-group">
+                <button class="filter-pill active" data-filter="all" type="button">전체 (11)</button>
+                <button class="filter-pill" data-filter="study" type="button">학습 &amp; 시험 (4)</button>
+                <button class="filter-pill" data-filter="code" type="button">코드 &amp; 계산 (3)</button>
+                <button class="filter-pill" data-filter="knowledge" type="button">검색 &amp; 지식 (4)</button>
+              </div>
+              <div class="tools-guide-tip-pill">
+                💡 <em>추천 질문을 클릭하면 질문창에 바로 입력됩니다</em>
+              </div>
+            </div>
+
+            <div class="tools-cards-grid">
+              <!-- 1. 실시간 웹 검색 -->
+              <div class="tool-guide-card" data-category="knowledge">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">🌐</span>
+                    <span class="tool-name">실시간 웹 검색</span>
+                  </div>
+                  <span class="tool-fn-badge">web_search</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>최신 뉴스, 시사, 인물/작품 실시간 웹 검색</li>
+                  <li>웹 출처 기반 사실 관계 및 팩트 체크</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="2026학년도 수능 일정과 주요 변동사항 검색해줘" type="button">
+                      <span>2026 수능 일정 검색해줘</span>
+                    </button>
+                    <button class="prompt-chip" data-prompt="최신 양자컴퓨터 연구 동향 인터넷에서 검색해서 알려줘" type="button">
+                      <span>최신 양자컴퓨터 동향 검색해줘</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. 파이썬 코드 실행 -->
+              <div class="tool-guide-card" data-category="code">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">🐍</span>
+                    <span class="tool-name">Python 코드 실행 &amp; 차트</span>
+                  </div>
+                  <span class="tool-fn-badge">python_execute</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>파이썬 샌드박스 코드 즉시 실행 및 수치 연산</li>
+                  <li>알고리즘 시뮬레이션 및 matplotlib 차트 시각화</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="파이썬으로 1부터 100까지의 소수(Prime Number)를 모두 구하는 코드를 실행해줘" type="button">
+                      <span>소수 구하기 파이썬 실행</span>
+                    </button>
+                    <button class="prompt-chip" data-prompt="파이썬 matplotlib으로 사인파와 코사인파 비교 그래프를 그려줘" type="button">
+                      <span>matplotlib 사인파 그래프 그리기</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 3. 2D 함수 그래프 -->
+              <div class="tool-guide-card" data-category="code">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">📈</span>
+                    <span class="tool-name">2D 함수 그래프 시각화</span>
+                  </div>
+                  <span class="tool-fn-badge">plot_function_graph</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>2차/다항함수, 삼각함수, 지수로그 2D 캔버스 렌더링</li>
+                  <li>극값, 점근선, 대칭성 등 핵심 수학적 특성 분석</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="y = sin(x) + cos(x) 함수 그래프 그려줘" type="button">
+                      <span>y = sin(x) + cos(x) 그리기</span>
+                    </button>
+                    <button class="prompt-chip" data-prompt="f(x) = x^2 - 4x + 3 함수 그래프 시각화해줘" type="button">
+                      <span>이차함수 그래프 시각화</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="tool-card-actions">
+                  <button class="tool-action-btn" data-direct-tool="graph" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>그래프 도구 열기</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 4. 인터랙티브 4지선다 퀴즈 -->
+              <div class="tool-guide-card" data-category="study">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">📝</span>
+                    <span class="tool-name">인터랙티브 4지선다 퀴즈</span>
+                  </div>
+                  <span class="tool-fn-badge">start_quiz</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>주제별 또는 대화 내용 기반 4지선다 문제 즉석 출제</li>
+                  <li>화면 보기 선택 인터랙티브 풀이 및 실시간 오답 해설</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="한국 근현대사 핵심 사건에 대한 4지선다 퀴즈 3문제 내줘" type="button">
+                      <span>한국사 퀴즈 3문제 내줘</span>
+                    </button>
+                    <button class="prompt-chip" data-prompt="광합성과 세포 호흡 개념 점검 퀴즈 출제해줘" type="button">
+                      <span>광합성/호흡 퀴즈 출제</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="tool-card-actions">
+                  <button class="tool-action-btn" data-direct-tool="quiz" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>퀴즈 풀기 시작</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 5. 3D 암기 플래시카드 -->
+              <div class="tool-guide-card" data-category="study">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">🗂️</span>
+                    <span class="tool-name">3D 암기 플래시카드</span>
+                  </div>
+                  <span class="tool-fn-badge">create_flashcards</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>영단어, 핵심 공식, 필수 암기 개념 3D 입체 카드 생성</li>
+                  <li>앞/뒤 플립 카드 뒤집기 및 난이도별 복습 시스템</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="수능 필수 빈출 영단어 5개로 암기 플래시카드 만들어줘" type="button">
+                      <span>수능 영단어 플래시카드</span>
+                    </button>
+                    <button class="prompt-chip" data-prompt="화학 주기율표 주요 원소 기호 암기 카드 만들어줘" type="button">
+                      <span>원소기호 플래시카드</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="tool-card-actions">
+                  <button class="tool-action-btn" data-direct-tool="flashcard" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>암기 카드 열기</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 6. 뽀모도로 집중 타이머 -->
+              <div class="tool-guide-card" data-category="study">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">⏱️</span>
+                    <span class="tool-name">뽀모도로 집중 타이머</span>
+                  </div>
+                  <span class="tool-fn-badge">start_study_timer</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>25분/50분 뽀모도로 집중 공부 세션 시작 &amp; 카운트다운</li>
+                  <li>세션별 공부 시간 측정 및 딴짓 방지 동기 부여</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="지금부터 25분 집중 뽀모도로 타이머 시작해줘" type="button">
+                      <span>25분 집중 타이머 시작</span>
+                    </button>
+                    <button class="prompt-chip" data-prompt="50분 공부 타이머 켜줘! 딴짓 안 하게 감시해줘" type="button">
+                      <span>50분 공부 타이머 시작</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="tool-card-actions">
+                  <button class="tool-action-btn" data-direct-tool="timer" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>타이머 설정 열기</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 7. 스마트 칠판 개념 설명 -->
+              <div class="tool-guide-card" data-category="knowledge">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">📋</span>
+                    <span class="tool-name">스마트 칠판 개념 정리</span>
+                  </div>
+                  <span class="tool-fn-badge">open_explanation</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>우측 칠판에 개념 정리, 원리 유도, 요약 자료 시각화</li>
+                  <li>마크다운 서식 및 KaTeX 수학 수식 고화질 렌더링</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="미적분의 기본정리 유도 과정 칠판에 상세히 설명해줘" type="button">
+                      <span>미적분 기본정리 칠판 설명</span>
+                    </button>
+                    <button class="prompt-chip" data-prompt="아인슈타인의 특수 상대성 이론 핵심 원리 칠판에 정리해줘" type="button">
+                      <span>상대성 이론 칠판 정리</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 8. 학습 자료 PDF 본문 분석 -->
+              <div class="tool-guide-card" data-category="study">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">📑</span>
+                    <span class="tool-name">학습 자료 / PDF 본문 분석</span>
+                  </div>
+                  <span class="tool-fn-badge">read_file</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>첨부된 학습 자료(PDF, TXT, MD) 본문 직접 추출</li>
+                  <li>특정 페이지(예: 5쪽) 지정 문제 풀이 및 지문 해설</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="업로드한 모의고사 파일 5쪽의 문제를 읽고 풀이 과정을 설명해줘" type="button">
+                      <span>업로드 모의고사 5쪽 문제 풀기</span>
+                    </button>
+                    <button class="prompt-chip" data-prompt="첨부한 교재 1~3쪽 핵심 내용을 알기 쉽게 요약해줘" type="button">
+                      <span>자료 1~3쪽 요약하기</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 9. 학습 교재 RAG 벡터 검색 -->
+              <div class="tool-guide-card" data-category="knowledge">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">🔍</span>
+                    <span class="tool-name">학습 교재 RAG 벡터 검색</span>
+                  </div>
+                  <span class="tool-fn-badge">search_rag</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>대용량 교재 문서 전체 대상 의미 기반 AI 벡터 검색</li>
+                  <li>질문과 가장 밀접한 핵심 문단 추출 및 근거 제시</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="업로드한 교재에서 오일러 공식이 언급된 단원을 찾아서 설명해줘" type="button">
+                      <span>교재에서 오일러 공식 찾기</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 10. 정밀 공학 수치 계산기 -->
+              <div class="tool-guide-card" data-category="code">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">🧮</span>
+                    <span class="tool-name">정밀 공학 수치 계산기</span>
+                  </div>
+                  <span class="tool-fn-badge">calculator</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>사칙연산, 삼각함수, 거듭제곱, 제곱근 정밀 수치 연산</li>
+                  <li>LLM 환각 없는 100% 오차 없는 계산 결과 제공</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="348 * 79.5 계산해줘" type="button">
+                      <span>348 * 79.5 정밀 계산</span>
+                    </button>
+                    <button class="prompt-chip" data-prompt="sqrt(144) * 2^10 계산기 도구로 계산해줘" type="button">
+                      <span>sqrt(144) * 2^10 계산</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 11. 오늘의 학습 목표 설정 -->
+              <div class="tool-guide-card" data-category="knowledge">
+                <div class="tool-card-header">
+                  <div class="tool-title-wrap">
+                    <span class="tool-icon">🎯</span>
+                    <span class="tool-name">오늘의 학습 목표 설정</span>
+                  </div>
+                  <span class="tool-fn-badge">set_goal</span>
+                </div>
+                <ul class="tool-bullet-list">
+                  <li>당일 공부 목표 등록 및 상단 헤더 실시간 고정</li>
+                  <li>목표 달성 여부 추적 및 체계적인 학습 가이드</li>
+                </ul>
+                <div class="tool-card-prompts">
+                  <span class="prompts-label">추천 질문:</span>
+                  <div class="prompt-chips-wrap">
+                    <button class="prompt-chip" data-prompt="오늘 목표: 수능 영어 기출 2지문 완벽 분석으로 설정해줘" type="button">
+                      <span>오늘의 공부 목표 설정</span>
+                    </button>
+                  </div>
+                </div>
+                <div class="tool-card-actions">
+                  <button class="tool-action-btn" data-direct-tool="goal" type="button">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    <span>목표 관리함 열기</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 탭 2: MIKU 사용 방법 -->
+          <div class="tools-guide-tab-pane" id="pane-guide">
+            <div class="how-to-steps-grid">
+              <div class="how-to-card">
+                <div class="how-to-card-header">
+                  <span class="how-to-icon-wrap">💬</span>
+                  <h3>01. 음성 &amp; 텍스트 대화</h3>
+                </div>
+                <ul class="how-to-bullets">
+                  <li><strong>입력 방식</strong>: 채팅창 텍스트 입력 및 마이크(🎙️) 음성 대화</li>
+                  <li><strong>실시간 피드백</strong>: TTS 음성 출력 + 입모양(립싱크) + 3D 감정 모션</li>
+                  <li><strong>대화 지원</strong>: 반말, 구어체, 시험 문제 질의응답 모두 지원</li>
+                </ul>
+              </div>
+
+              <div class="how-to-card">
+                <div class="how-to-card-header">
+                  <span class="how-to-icon-wrap">📂</span>
+                  <h3>02. 학습 자료 첨부 (1:1 튜터링)</h3>
+                </div>
+                <ul class="how-to-bullets">
+                  <li><strong>지원 형식</strong>: PDF, TXT, MD, 소스코드, 이미지 파일</li>
+                  <li><strong>첨부 방식</strong>: 클립(📎) 아이콘 클릭 또는 파일 드래그 앤 드롭</li>
+                  <li><strong>정밀 분석</strong>: "5쪽 3번 문제 풀어줘"와 같이 특정 페이지 지정 가능</li>
+                </ul>
+              </div>
+
+              <div class="how-to-card">
+                <div class="how-to-card-header">
+                  <span class="how-to-icon-wrap">🤖</span>
+                  <h3>03. 자율 LLM 도구 호출 (Agentic AI)</h3>
+                </div>
+                <ul class="how-to-bullets">
+                  <li><strong>자연어 요청</strong>: "파이썬 실행해", "퀴즈 내줘", "검색해줘" 등 직접 발화</li>
+                  <li><strong>자율 판단</strong>: 대화 맥락에 맞춰 AI가 11종 도구 스스로 선택/실행</li>
+                  <li><strong>화면 연동</strong>: 퀴즈, 타이머, 그래프, 플래시카드 인터랙티브 UI 즉시 팝업</li>
+                </ul>
+              </div>
+
+              <div class="how-to-card">
+                <div class="how-to-card-header">
+                  <span class="how-to-icon-wrap">🎥</span>
+                  <h3>04. 3D 아바타 &amp; 환경 설정</h3>
+                </div>
+                <ul class="how-to-bullets">
+                  <li><strong>마우스 시점 제어</strong>: 좌클릭 드래그(회전), 우클릭 드래그(이동), 휠(확대/축소)</li>
+                  <li><strong>시점 리셋</strong>: 우측 상단 [시점 초기화] 버튼으로 기본 뷰 복구</li>
+                  <li><strong>환경 설정</strong>: 좌측 하단 [설정]에서 다크/화이트 테마 및 TTS 모델 변경</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 목표 설정 모달 -->
+    <div class="modal-overlay" id="goal-modal-overlay">
+      <div class="modal" id="goal-modal">
+        <div class="modal-header">
+          <h2>오늘의 목표</h2>
+          <button class="modal-close icon-btn ghost" id="btn-close-goal" type="button" title="닫기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="goal-current" class="goal-current"></div>
+          <form id="goal-form" class="goal-form">
+            <input id="goal-input" type="text" placeholder="예: 미분의 연쇄법칙 마스터하기" />
+            <button type="submit" class="send-btn" title="저장" aria-label="저장">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 설정 모달 (다크 모드 / 화이트 모드 전환 등) -->
+    <div class="modal-overlay" id="settings-modal-overlay">
+      <div class="modal" id="settings-modal">
+        <div class="modal-header">
+          <h2>설정</h2>
+          <button class="modal-close icon-btn ghost" id="btn-close-settings" type="button" title="닫기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body settings-body">
+          <div class="setting-row">
+            <div class="setting-label">
+              <strong>화면 테마</strong>
+              <small>배경을 다크 모드 또는 화이트 모드로 전환합니다</small>
+            </div>
+            <div class="theme-segmented" role="group" aria-label="화면 테마 선택">
+              <button type="button" class="theme-opt" data-theme-value="dark" id="btn-theme-dark">다크</button>
+              <button type="button" class="theme-opt" data-theme-value="light" id="btn-theme-light">화이트</button>
+            </div>
+          </div>
+          <div class="setting-row" id="setting-row-reset-session">
+            <div class="setting-label">
+              <strong class="danger-text">기기 세션 데이터 초기화</strong>
+              <small>이 기기의 대화 세션, 프로필, 학습 기록, 설정 및 업로드 자료를 모두 초기화합니다</small>
+            </div>
+            <button type="button" id="btn-delete-all-sessions" class="danger-btn">데이터 초기화</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 프로필 설정 모달 -->
+    <div class="modal-overlay" id="profile-modal-overlay">
+      <div class="modal" id="profile-modal">
+        <div class="modal-header">
+          <h2>프로필 설정</h2>
+          <button class="modal-close icon-btn ghost" id="btn-close-profile" type="button" title="닫기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body profile-body">
+          <form id="profile-form" class="profile-form-content">
+            <div class="profile-avatar-edit-row">
+              <div class="profile-avatar-preview" id="profile-modal-avatar-preview"></div>
+              <div class="profile-avatar-buttons">
+                <label for="profile-avatar-file" class="secondary-btn upload-label" style="cursor: pointer;">사진 변경</label>
+                <input type="file" id="profile-avatar-file" accept="image/*" hidden />
+                <button type="button" id="btn-reset-avatar" class="secondary-btn" title="기본 사진으로 복원">기본 사진</button>
+              </div>
+            </div>
+            <div class="setting-row" style="margin-top: 18px; margin-bottom: 6px;">
+              <div class="setting-label">
+                <strong>이름</strong>
+                <small>미기입 시 기본값은 User 입니다</small>
+              </div>
+            </div>
+            <input type="text" id="profile-name-input" class="profile-text-input" placeholder="User" maxlength="24" autocomplete="off" />
+            <div class="profile-actions-bar">
+              <button type="submit" class="save-btn">저장</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. 퀴즈 풀기 모달 -->
+    <div class="modal-overlay" id="quiz-modal-overlay">
+      <div class="modal study-modal quiz-modal" id="quiz-modal">
+        <div class="modal-header">
+          <div class="study-modal-title">
+            <span class="tool-icon">💡</span>
+            <h2>인터랙티브 퀴즈</h2>
+            <span class="quiz-progress-badge" id="quiz-progress-text">문제 1 / 3</span>
+          </div>
+          <button class="modal-close icon-btn ghost" type="button" title="닫기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <!-- AI 퀴즈 실시간 생성 도구바 -->
+          <div class="study-modal-ai-bar">
+            <div class="ai-bar-inputs">
+              <input type="text" id="input-quiz-topic" class="ai-bar-input" placeholder="출제 주제 입력 (비워두면 현재 대화 세션 기반 생성)" />
+              <button type="button" id="btn-generate-ai-quiz" class="primary-btn ai-sparkle-btn" title="AI로 맞춤 퀴즈 생성">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                <span>AI 퀴즈 생성</span>
+              </button>
+              <button type="button" id="btn-generate-session-quiz" class="secondary-btn" title="현재 대화 내용으로 바로 생성">
+                <span>대화로 생성</span>
+              </button>
+            </div>
+            <div id="quiz-loading-bar" class="ai-loading-indicator" hidden>
+              <span class="loading-spinner"></span>
+              <span id="quiz-loading-text">AI가 대화 내용을 분석하여 퀴즈를 출제 중입니다...</span>
+            </div>
+          </div>
+
+          <div class="quiz-question-box" id="quiz-question-text">문제를 불러오는 중...</div>
+          <div class="quiz-options-container" id="quiz-options-container"></div>
+          <div class="quiz-explanation-box" id="quiz-explanation-box" hidden></div>
+          <div class="quiz-actions">
+            <button type="button" id="btn-quiz-next" class="primary-btn" hidden>다음 문제 →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 집중 타이머 (뽀모도로) 모달 -->
+    <div class="modal-overlay" id="timer-modal-overlay">
+      <div class="modal study-modal timer-modal" id="timer-modal">
+        <div class="modal-header">
+          <div class="study-modal-title">
+            <span class="tool-icon">⏱️</span>
+            <h2>집중 타이머</h2>
+          </div>
+          <button class="modal-close icon-btn ghost" type="button" title="닫기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body timer-body">
+          <div class="timer-preset-pills">
+            <button type="button" class="timer-preset-btn active" data-mins="25">25분 (뽀모도로)</button>
+            <button type="button" class="timer-preset-btn" data-mins="50">50분 (집중 몰입)</button>
+            <button type="button" class="timer-preset-btn" data-mins="5">5분 (휴식)</button>
+          </div>
+          <div class="timer-dial-container">
+            <div class="timer-time-display" id="timer-time-display">25:00</div>
+            <div class="timer-progress-track">
+              <div class="timer-progress-fill" id="timer-progress-fill"></div>
+            </div>
+          </div>
+          <div class="timer-controls">
+            <button type="button" id="btn-timer-start" class="primary-btn timer-action-btn">시작</button>
+            <button type="button" id="btn-timer-reset" class="secondary-btn timer-action-btn">초기화</button>
+          </div>
+          <div class="timer-session-link">
+            <label class="study-sync-label">
+              <input type="checkbox" id="check-timer-notify" checked />
+              <span>완료 시 대화 세션에 공부 기록 및 피드백 받기</span>
+            </label>
+            <button type="button" id="btn-timer-share-chat" class="ghost-btn" style="font-size:12px; margin-top:4px;">
+              💬 대화창에 집중 공부 시작 알리기
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 암기 카드 (3D 플립) 모달 -->
+    <div class="modal-overlay" id="flashcard-modal-overlay">
+      <div class="modal study-modal flashcard-modal" id="flashcard-modal">
+        <div class="modal-header">
+          <div class="study-modal-title">
+            <span class="tool-icon">🗂️</span>
+            <h2>암기 카드</h2>
+            <span class="card-indicator-badge" id="flashcard-indicator">1 / 4</span>
+          </div>
+          <button class="modal-close icon-btn ghost" type="button" title="닫기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body flashcard-body">
+          <!-- AI 암기 카드 실시간 생성 도구바 -->
+          <div class="study-modal-ai-bar">
+            <div class="ai-bar-inputs">
+              <input type="text" id="input-card-topic" class="ai-bar-input" placeholder="카드 주제 입력 (비워두면 현재 대화 세션 핵심 요약)" />
+              <button type="button" id="btn-generate-ai-cards" class="primary-btn ai-sparkle-btn" title="AI로 암기 카드 생성">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>
+                <span>AI 카드 생성</span>
+              </button>
+              <button type="button" id="btn-generate-session-cards" class="secondary-btn" title="현재 대화 내용으로 바로 생성">
+                <span>대화로 생성</span>
+              </button>
+            </div>
+            <div id="card-loading-bar" class="ai-loading-indicator" hidden>
+              <span class="loading-spinner"></span>
+              <span id="card-loading-text">AI가 핵심 개념을 요약하여 암기 카드를 제작 중입니다...</span>
+            </div>
+          </div>
+
+          <div class="flashcard-scene">
+            <div class="flashcard-3d" id="flashcard-3d" title="카드를 클릭하면 정답이 뒤집힙니다">
+              <div class="flashcard-face flashcard-front">
+                <span class="face-tag">질문 / 단어</span>
+                <div class="face-content" id="flashcard-front-text">카드를 불러오는 중...</div>
+                <span class="face-hint">💡 카드를 클릭하여 정답 확인</span>
+              </div>
+              <div class="flashcard-face flashcard-back">
+                <span class="face-tag">정답 / 해설</span>
+                <div class="face-content" id="flashcard-back-text"></div>
+              </div>
+            </div>
+          </div>
+          <div class="flashcard-nav-row">
+            <button type="button" id="btn-card-prev" class="secondary-btn">← 이전</button>
+            <div class="flashcard-rate-buttons">
+              <button type="button" id="btn-card-hard" class="ghost-btn danger">다시 보기</button>
+              <button type="button" id="btn-card-easy" class="primary-btn">외웠어요 ✅</button>
+            </div>
+            <button type="button" id="btn-card-next" class="secondary-btn">다음 →</button>
+          </div>
+          <div class="flashcard-ai-actions">
+            <button type="button" id="btn-card-ask-ai" class="ghost-btn" style="width:100%; font-size:12px; margin-bottom:8px;">
+              💬 이 카드 개념 AI(미쿠)에게 질문하기
+            </button>
+          </div>
+          <form id="form-add-card" class="add-card-inline-form">
+            <input type="text" id="input-card-q" placeholder="직접 새 카드 추가: 질문/단어" required />
+            <input type="text" id="input-card-a" placeholder="정답/뜻" required />
+            <button type="submit" class="secondary-btn">추가</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. 함수 그래프 그리기 모달 -->
+    <div class="modal-overlay" id="graph-modal-overlay">
+      <div class="modal study-modal graph-modal" id="graph-modal">
+        <div class="modal-header">
+          <div class="study-modal-title">
+            <span class="tool-icon">📈</span>
+            <h2>함수 그래프 시각화</h2>
+          </div>
+          <button class="modal-close icon-btn ghost" type="button" title="닫기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body graph-body">
+          <div class="graph-canvas-container">
+            <canvas id="graph-canvas"></canvas>
+          </div>
+          <div class="graph-presets-row">
+            <span>추천 함수:</span>
+            <button type="button" class="graph-preset-btn" data-expr="x^2">y = x²</button>
+            <button type="button" class="graph-preset-btn" data-expr="sin(x)">y = sin(x)</button>
+            <button type="button" class="graph-preset-btn" data-expr="2*x - 1">y = 2x - 1</button>
+            <button type="button" class="graph-preset-btn" data-expr="abs(x)">y = |x|</button>
+          </div>
+          <form id="graph-func-form" class="graph-input-form">
+            <span class="func-prefix">f(x) =</span>
+            <input type="text" id="graph-func-input" value="x^2" placeholder="예: sin(x), x^2 - 4" />
+            <button type="submit" class="primary-btn">그래프 그리기</button>
+            <button type="button" id="btn-graph-ask-ai" class="secondary-btn" title="이 함수의 수학적 성질을 AI에게 질문">
+              💬 AI 해설 요청
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 5. 기분 체크 (멘탈 케어) 모달 -->
+    <div class="modal-overlay" id="mood-modal-overlay">
+      <div class="modal study-modal mood-modal" id="mood-modal">
+        <div class="modal-header">
+          <div class="study-modal-title">
+            <span class="tool-icon">💖</span>
+            <h2>오늘의 기분 체크</h2>
+          </div>
+          <button class="modal-close icon-btn ghost" type="button" title="닫기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body mood-body">
+          <p class="mood-subtitle">오늘 공부 컨디션과 기분은 어떤가요?</p>
+          <div class="mood-emojis-row">
+            <button type="button" class="mood-emoji-btn" data-mood="great">
+              <span class="emoji">🌟</span>
+              <span class="label">최고예요</span>
+            </button>
+            <button type="button" class="mood-emoji-btn selected" data-mood="good">
+              <span class="emoji">😊</span>
+              <span class="label">좋아요</span>
+            </button>
+            <button type="button" class="mood-emoji-btn" data-mood="neutral">
+              <span class="emoji">😐</span>
+              <span class="label">보통이에요</span>
+            </button>
+            <button type="button" class="mood-emoji-btn" data-mood="tired">
+              <span class="emoji">😴</span>
+              <span class="label">피곤해요</span>
+            </button>
+            <button type="button" class="mood-emoji-btn" data-mood="stressed">
+              <span class="emoji">😰</span>
+              <span class="label">지쳐요</span>
+            </button>
+          </div>
+          <div class="mood-memo-box">
+            <input type="text" id="input-mood-memo" placeholder="한 줄 메모 (예: 오늘 수학 문제 너무 어려웠어)" />
+          </div>
+          <div class="mood-sync-box" style="margin-top: 8px;">
+            <label class="study-sync-label">
+              <input type="checkbox" id="check-mood-notify" checked />
+              <span>대화창에 컨디션 공유하고 미쿠에게 맞춤 조언 받기</span>
+            </label>
+          </div>
+          <div class="mood-actions">
+            <button type="button" id="btn-submit-mood" class="primary-btn">털어놓기</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 시연 전용: 체험자 이름 설정 / 전환 모달 (대화창 프롬프트로 이전됨) -->
+    <div class="modal-overlay" id="demo-name-modal-overlay" data-keep-open="true" style="display: none !important;">
+      <div class="modal" id="demo-name-modal" style="max-width: 400px; text-align: center;">
+        <div class="modal-header" style="justify-content: center;">
+          <h2 style="font-size: 20px; font-weight: 700; display: inline-flex; align-items: baseline; justify-content: center; gap: 8px;"><span class="brand-title" style="font-size: 20px;">Project - MIKU</span> <span class="brand-preview-tag" style="font-size: 11.5px;">for Preview</span></h2>
+        </div>
+        <div class="modal-body" style="padding: 20px 24px 24px;">
+          <p style="margin: 0 0 16px; font-size: 13.5px; color: var(--text-dim); line-height: 1.5;">
+            체험하실 분의 <strong>이름(또는 닉네임)</strong>을 입력해 주세요.
+          </p>
+          <form id="demo-name-form">
+            <div style="margin-bottom: 16px; text-align: left;">
+              <input type="text" id="demo-visitor-name" placeholder="예: 민우, 하랑" style="width: 100%; font-size: 15px; padding: 12px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); box-sizing: border-box;" maxlength="15" autocomplete="off" required />
+            </div>
+            <button type="submit" class="action-btn primary" style="width: 100%; justify-content: center; padding: 12px; font-size: 15px; font-weight: 600; border-radius: 8px; background: linear-gradient(135deg, #0284c7 0%, #0d9488 100%); color: #ffffff; border: none; cursor: pointer;">
+              이름 등록 및 대화 시작
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 시연 전용: 로그아웃 분탕 방지 비밀번호 확인 모달 -->
+    <div class="modal-overlay" id="demo-logout-modal-overlay">
+      <div class="modal" id="demo-logout-modal" style="max-width: 380px; text-align: center;">
+        <div class="modal-header" style="justify-content: space-between; position: relative;">
+          <h2 style="font-size: 17px; font-weight: 700; color: #f87171; display: inline-flex; align-items: center; gap: 6px;">
+            🔒 로그아웃 보안 확인
+          </h2>
+          <button class="modal-close icon-btn ghost" id="btn-close-demo-logout-modal" type="button" title="취소">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="modal-body" style="padding: 16px 20px 20px;">
+          <p style="margin: 0 0 14px; font-size: 13px; color: var(--text-dim); line-height: 1.5; text-align: left;">
+            시연 부스 세션 보호를 위해 <strong>계정 비밀번호</strong>를 입력해야 로그아웃할 수 있습니다.
+          </p>
+          <form id="demo-logout-form">
+            <div style="margin-bottom: 12px; text-align: left;">
+              <input type="password" id="demo-logout-password" placeholder="비밀번호 입력" style="width: 100%; font-size: 14px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--text); box-sizing: border-box;" autocomplete="off" required />
+            </div>
+            <div id="demo-logout-error" style="display: none; color: #f87171; font-size: 12px; margin-bottom: 12px; text-align: left;">
+              비밀번호가 올바르지 않습니다.
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button type="button" id="btn-cancel-demo-logout" class="action-btn secondary" style="padding: 8px 14px; font-size: 13px;">
+                취소
+              </button>
+              <button type="submit" class="action-btn" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: #ef4444; color: #fff; border: none; border-radius: 8px; cursor: pointer;">
+                로그아웃
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- 시연용 프론트엔드 로그인 게이트 -->
+    <div id="login-overlay" class="login-overlay hidden">
+      <div class="login-modal-card">
+        <div class="login-header">
+          <h1 class="login-title">Project - MIKU</h1>
+        </div>
+        
+        <form id="login-form" class="login-form" autocomplete="off">
+          <div class="login-field">
+            <label for="login-username">아이디</label>
+            <input type="text" id="login-username" class="login-input" placeholder="계정 아이디" required autofocus />
+          </div>
+          
+          <div class="login-field">
+            <label for="login-password">비밀번호</label>
+            <input type="password" id="login-password" class="login-input" placeholder="비밀번호" required />
+          </div>
+
+          <div id="login-error" class="login-error" style="display: none;"></div>
+
+          <button type="submit" id="btn-login-submit" class="login-submit-btn">
+            <span>입장하기</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/app.js?v=20261030_preview_logo_match"></script>
+</body>
+</html>

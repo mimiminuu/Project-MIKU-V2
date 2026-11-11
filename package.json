@@ -1,0 +1,32 @@
+{
+  "name": "project-miku",
+  "version": "0.1.0",
+  "description": "클라우드 API 기반 학습용 친근한 어시스턴트 + 커스텀 아바타 (Live2D)",
+  "type": "module",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node scripts/test.js",
+    "test:browser": "node scripts/test-browser.js",
+    "e2e": "node scripts/e2e-ws.js",
+    "chroma": "node scripts/chroma-start.js",
+    "setup": "node scripts/setup-sample-model.js && node scripts/setup-vendor.js",
+    "postinstall": "node scripts/setup-sample-model.js && node scripts/setup-vendor.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@xenova/transformers": "^2.17.2",
+    "chromadb": "^1.10.4",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.2",
+    "msedge-tts": "^2.1.0",
+    "multer": "^2.2.0",
+    "pdf-parse": "^1.1.1",
+    "pixi-live2d-display": "^0.4.0",
+    "pixi.js": "^6.5.10",
+    "ws": "^8.18.0"
+  }
+}
